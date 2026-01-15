@@ -18,18 +18,21 @@ public interface UserRepository extends CrudRepository<UserEntity, Long> {
     Optional<UserEntity> findByUsername(String username);
     List<UserEntity> findAll();
 
-    @Modifying
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
     @Transactional
-    @Query("UPDATE users u SET " +
-           "u.fullName = COALESCE(:fullName, u.fullName), " +
-           "u.email = COALESCE(:email, u.email), " +
-           "u.username = COALESCE(:username, u.username), " +
-           "u.encryptedPassword = COALESCE(:encryptedPassword, u.encryptedPassword) " +
-           "WHERE u.id = :id")
+    @Query("""
+UPDATE users u SET
+u.fullName = COALESCE(:fullName, u.fullName),
+u.email = COALESCE(:email, u.email),
+u.username = COALESCE(:username, u.username),
+u.encryptedPassword = COALESCE(:encryptedPassword, u.encryptedPassword)
+WHERE u.id = :id
+""")
     int updatePartialUser(
             @org.springframework.lang.Nullable String fullName,
             @org.springframework.lang.Nullable String email,
             @org.springframework.lang.Nullable String username,
             @org.springframework.lang.Nullable String encryptedPassword,
-            Long id);
+            Long id
+    );
 }
