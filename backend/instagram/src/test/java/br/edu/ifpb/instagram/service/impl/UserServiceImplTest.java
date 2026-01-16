@@ -11,6 +11,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -126,6 +127,43 @@ class UserServiceImplTest {
                 () -> userService.createUser(dto));
 
         verify(userRepository, never()).save(any());
+    }
+
+    // FIND ALL
+
+    @Test
+    void shouldReturnListOfUserDtoWhenFindAllIsCalled() {
+        UserEntity user1 = new UserEntity();
+        user1.setId(1L);
+        user1.setFullName("User One");
+        user1.setUsername("user1");
+        user1.setEmail("user1@email.com");
+
+        UserEntity user2 = new UserEntity();
+        user2.setId(2L);
+        user2.setFullName("User Two");
+        user2.setUsername("user2");
+        user2.setEmail("user2@email.com");
+
+        when(userRepository.findAll())
+                .thenReturn(List.of(user1, user2));
+
+        var result = userService.findAll();
+
+        assertNotNull(result);
+        assertEquals(2, result.size());
+
+        assertEquals(1L, result.get(0).id());
+        assertEquals("User One", result.get(0).fullName());
+        assertEquals("user1", result.get(0).username());
+        assertEquals("user1@email.com", result.get(0).email());
+
+        assertEquals(2L, result.get(1).id());
+        assertEquals("User Two", result.get(1).fullName());
+        assertEquals("user2", result.get(1).username());
+        assertEquals("user2@email.com", result.get(1).email());
+
+        verify(userRepository).findAll();
     }
 
     // UPDATE USER

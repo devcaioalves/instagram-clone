@@ -2,10 +2,10 @@ package br.edu.ifpb.instagram.security;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 import org.springframework.security.core.Authentication;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 class JwtUtilsTest {
@@ -17,10 +17,11 @@ class JwtUtilsTest {
         jwtUtils = new JwtUtils();
     }
 
+    // Geração de token
     @Test
-    void shouldGenerateValidJwtToken() {
-        Authentication authentication = Mockito.mock(Authentication.class);
-        when(authentication.getName()).thenReturn("caio");
+    void deveGerarTokenComUsernameValido() {
+        Authentication authentication = mock(Authentication.class);
+        when(authentication.getName()).thenReturn("teste@gmail.com");
 
         String token = jwtUtils.generateToken(authentication);
 
@@ -28,45 +29,48 @@ class JwtUtilsTest {
         assertFalse(token.isBlank());
     }
 
+    // Validação de token válido
     @Test
-    void shouldValidateValidToken() {
-        Authentication authentication = Mockito.mock(Authentication.class);
-        when(authentication.getName()).thenReturn("caio");
+    void deveValidarTokenValido() {
+        Authentication authentication = mock(Authentication.class);
+        when(authentication.getName()).thenReturn("teste@gmail.com");
 
         String token = jwtUtils.generateToken(authentication);
 
-        boolean isValid = jwtUtils.validateToken(token);
+        boolean valid = jwtUtils.validateToken(token);
 
-        assertTrue(isValid);
+        assertTrue(valid);
     }
 
+    // Token inválido / malformado
     @Test
-    void shouldInvalidateMalformedToken() {
-        String invalidToken = "token.invalido.qualquer";
+    void deveRetornarFalsoParaTokenInvalido() {
+        String tokenInvalido = "token.qualquer.invalido";
 
-        boolean isValid = jwtUtils.validateToken(invalidToken);
+        boolean valid = jwtUtils.validateToken(tokenInvalido);
 
-        assertFalse(isValid);
+        assertFalse(valid);
     }
 
+    // Extração de username
     @Test
-    void shouldGetUsernameFromToken() {
-        Authentication authentication = Mockito.mock(Authentication.class);
-        when(authentication.getName()).thenReturn("caio");
+    void deveExtrairUsernameDoToken() {
+        Authentication authentication = mock(Authentication.class);
+        when(authentication.getName()).thenReturn("teste@gmail.com");
 
         String token = jwtUtils.generateToken(authentication);
+        String usernameExtraido = jwtUtils.getUsernameFromToken(token);
 
-        String username = jwtUtils.getUsernameFromToken(token);
-
-        assertEquals("caio", username);
+        assertEquals("teste@gmail.com", usernameExtraido);
     }
 
+    // Erro ao extrair username de token inválido
     @Test
-    void shouldFailWhenGettingUsernameFromInvalidToken() {
-        String invalidToken = "token.invalido";
+    void deveLancarExcecaoAoExtrairUsernameDeTokenInvalido() {
+        String tokenInvalido = "token.invalido";
 
         assertThrows(Exception.class, () ->
-                jwtUtils.getUsernameFromToken(invalidToken)
+                jwtUtils.getUsernameFromToken(tokenInvalido)
         );
     }
 }
